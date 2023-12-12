@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string("title",256);
             $table->string("description",256);
             $table->integer("status");
+            $table->integer("del_flg")->default(0);
             $table->timestamps();
         });
     }
