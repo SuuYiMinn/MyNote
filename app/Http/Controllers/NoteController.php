@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -11,7 +12,15 @@ class NoteController extends Controller
      */
     public function index()
     {
-        //
+
+        $noteClass = new Note();
+        $notes = $noteClass->getAll();
+        return view(
+            "note.index",
+            [
+                "notes" => $notes
+            ]
+        );
     }
 
     /**
@@ -19,7 +28,7 @@ class NoteController extends Controller
      */
     public function create()
     {
-        //
+        return view("note.create");
     }
 
     /**
@@ -27,7 +36,15 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+        $request->validate([
+            "title"=>"required|min:3|max:20",
+            "desc" =>"required|min:5",
+            "status" =>"required"
+        ]);
+        $noteClass = new Note();
+        $noteClass->addNote($request);
+        return redirect("/note");
     }
 
     /**
@@ -35,7 +52,16 @@ class NoteController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // dd($id);
+        $noteClass = new Note();
+        $notes = $noteClass->getNoteByid($id);
+        if($notes == null){
+            // return redirect()->back();
+            return abort(404);
+        }
+        return view("note.show",[
+            "notes"=>$notes
+        ]);
     }
 
     /**
@@ -43,7 +69,15 @@ class NoteController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $noteClass = new Note();
+        $notes = $noteClass->getNoteByid($id); 
+        if($notes == null){
+            // return redirect()->back();
+            return abort(404);
+        }
+        return view("note.edit",[
+            "notes"=>$notes
+        ]);
     }
 
     /**
@@ -51,7 +85,14 @@ class NoteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            "title"=>"required|min:3|max:20",
+            "desc" =>"required|min:5",
+            "status" =>"required"
+        ]);
+        $noteClass = new Note();
+        $noteClass->updateNote($request,$id);
+        return redirect("/note");
     }
 
     /**
@@ -59,6 +100,13 @@ class NoteController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+         
+        $noteClass = new Note();
+        $notes = $noteClass->getNoteByid($id);
+        if($notes !== null){
+            $noteClass->deleteNote($id);
+        }
+       
+        return redirect("/note");
     }
 }
